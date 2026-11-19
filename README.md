@@ -1,35 +1,35 @@
-# 고장 난 계절 — Seasons Out of Order
+# Seasons Out of Order
 
-> 누군가 봄을 끝내지 않자, 모든 계절이 길을 잃었다.
+> When someone refused to let spring end, every season lost its way.
 
-계절 관리자 리아가 고장 난 네 구역(봄·여름·가을·겨울)을 정화하고, 잠들지 못한 계절의 나무를 되살리는 2D 탑다운 슈팅 게임이다. LAST SIGNAL 시제품을 참고해 새로 구현한다.
+A 2D top-down shooter where Ria, the season manager, purifies four broken areas (spring, summer, autumn, winter) and revives the Tree of Seasons, which cannot fall asleep. A fresh implementation using the LAST SIGNAL prototype as a reference.
 
-## 현재 상태
+## Current status
 
-제안 단계의 초기 세팅이다. 실행 가능한 게임 코드는 아직 없다. 뼈대부터 주차별로 쌓아 올린다.
+Proposal-stage initial setup. There is no runnable game code yet. The skeleton will be built up week by week.
 
-## 실행 방법 (예정)
+## How to run (planned)
 
-- Node.js 20 이상
-- `node server.js` 후 http://localhost:3000 접속 (뼈대 구현 후)
+- Node.js 20 or later
+- Run `node server.js`, then open http://localhost:3000 (after the skeleton is implemented)
 
-## 조작 (예정)
+## Controls (planned)
 
-WASD 이동, 마우스 조준, 클릭 발사, E 상호작용, P 일시정지.
+WASD to move, mouse to aim, click to shoot, E to interact, P to pause.
 
-## 역할 분담
+## Roles
 
-| 담당 | 책임 |
+| Member | Responsibility |
 | --- | --- |
-| 1번 플레이어·전투 | 이동·조준·발사·체력·탄환 충돌 |
-| 2번 적·보스 | 추적형·사격형·보스 패턴·공격 판정 |
-| 3번 방·아이템·브금 | 수제 맵·출현 위치·아이템·방별 브금 |
-| 4번 진행·UI·기록·스토리 | 상태 전환·UI·저장·화면 통합·스토리 |
+| Member 1 — Player & combat | Movement, aiming, shooting, health, bullet collision |
+| Member 2 — Enemies & boss | Chaser, shooter, boss patterns, attack hit detection |
+| Member 3 — Rooms, items & music | Hand-made maps, spawn positions, items, per-room music |
+| Member 4 — Progression, UI, records & story | State transitions, UI, saves, screen integration, story |
 
-## 협업 규칙
+## Collaboration rules
 
-Issue → 브랜치 → PR → 리뷰 → 병합. 자세한 공통 규칙(파일 소유권, 인터페이스 계약)은 팀 확정 후 이 레포에 추가한다.
+Issue → branch → PR → review → merge. The shared rules (file ownership, interface contract) will be added to this repo once the team finalizes them.
 
-## 범위
+## Scope
 
-핵심: 방 5개(계절 4 + 보스), 적 2종 + 보스 1종, 아이템 3종, 스승의 기록 3개, 최고 기록 저장. 제외: 대시, 돌진 적, 콤보, 인벤토리, 온라인 랭킹, 절차적 던전 생성.
+Core: 5 rooms (4 seasons + boss), 2 enemy types + 1 boss, 3 item types, 3 teacher's records, best-record saving. Out of scope: dash, charging enemies, combo, inventory, online rankings, procedural dungeon generation.
