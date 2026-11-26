@@ -1,4 +1,7 @@
 // Browser entry: canvas, input, and the game loop.
+import { Game } from './game.js';
+import { drawGame } from './render.js';
+
 const MAX_DT = 0.05; // seconds
 
 const canvas = document.querySelector('#game');
@@ -36,6 +39,9 @@ window.addEventListener('blur', () => {
   input.firing = false;
 });
 
+const game = new Game();
+game.start(); // TEMPORARY: part 3 of #4 replaces this with the start button
+
 let previous = performance.now();
 
 function frame(now) {
@@ -43,8 +49,8 @@ function frame(now) {
   const dt = Math.min(MAX_DT, Math.max(0, (now - previous) / 1000));
   previous = now;
 
-  ctx.fillStyle = '#1b2430';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  game.update(dt, input);
+  drawGame(ctx, game);
 
   requestAnimationFrame(frame);
 }
