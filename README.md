@@ -2,7 +2,7 @@
 
 > When someone refused to let spring end, every season lost its way.
 
-A 2D top-down shooter where Ria, the season manager, purifies four broken areas (spring, summer, autumn, winter) and revives the Tree of Seasons, which cannot fall asleep. A fresh implementation using the LAST SIGNAL prototype as a reference.
+A 2D top-down shooter where Sua, the season manager, purifies four broken areas (spring, summer, autumn, winter) and revives the Tree of Seasons, which cannot fall asleep. A fresh implementation using the LAST SIGNAL prototype as a reference.
 
 ## Current status
 
