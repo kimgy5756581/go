@@ -1,0 +1,18 @@
+# File owners: when a pull request changes these files, GitHub
+# automatically requests a review from the listed owners.
+# Owners are the four members' GitHub IDs (common rules, section 1.3).
+
+# Member 1: player and combat
+/src/player.js /src/projectile.js /assets/player/ @dwkwak0308-jpg
+
+# Member 2: enemies and boss
+/src/enemy.js /src/boss.js /assets/enemy/ /assets/boss/ @harry9716
+
+# Member 3: rooms, items, music
+/src/rooms.js /src/items.js /src/music.js /assets/rooms/ /assets/music/ @kimgy5756581
+
+# Member 4: game loop, UI, records, story
+/src/game.js /src/ui.js /src/storage.js /src/render.js /src/story.js /assets/shared/ @calvin2001
+
+# Shared files: all four members
+/src/logic.js /src/main.js /index.html /style.css @dwkwak0308-jpg @harry9716 @kimgy5756581 @calvin2001
