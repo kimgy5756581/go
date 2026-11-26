@@ -43,3 +43,15 @@ test('resolveCircle: 빈 공간에서는 움직이지 않고 false', () => {
   assert.equal(entity.x, 480);
   assert.equal(entity.y, 150);
 });
+
+test('resolveCircle: 중심이 장애물 안에 있어도 플레이 영역 안에서 밀어낸다', () => {
+  // 위쪽 벽에 붙은 블록. 중심이 블록 안에 있는 원은 가장 가까운 유효한 쪽으로 나간다.
+  const blocks = [{ x: 430, y: 48, w: 40, h: 444 }];
+  const entity = { x: 435, y: 270, r: 12 }; // 블록 한가운데
+  assert.equal(blocked(entity.x, entity.y, entity.r, blocks), true);
+  assert.equal(resolveCircle(entity, blocks), true);
+  assert.equal(blocked(entity.x, entity.y, entity.r, blocks), false);
+  // 왼쪽으로 나간다 (가장 가까운 쪽). 위쪽으로 나가면 플레이 영역 밖이다.
+  assert.equal(entity.x, 430 - entity.r);
+  assert.equal(entity.y, 270);
+});
