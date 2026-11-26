@@ -44,8 +44,24 @@ export function resolveCircle(entity, blocks) {
     const dist = Math.hypot(dx, dy);
     if (dist < entity.r) {
       if (dist === 0) {
-        // Center inside the block: push up (shortest exit is undefined).
-        entity.y = b.y - entity.r;
+        // Center inside the block: push out the shortest side that stays
+        // inside the play area (a block flush with a wall has no exit there).
+        const exits = [
+          { d: entity.x - b.x, x: b.x - entity.r, y: entity.y },
+          { d: b.x + b.w - entity.x, x: b.x + b.w + entity.r, y: entity.y },
+          { d: entity.y - b.y, x: entity.x, y: b.y - entity.r },
+          { d: b.y + b.h - entity.y, x: entity.x, y: b.y + b.h + entity.r },
+        ];
+        const inside = exits.filter(
+          (e) =>
+            e.x - entity.r >= PLAY_AREA.x &&
+            e.x + entity.r <= PLAY_AREA.x + PLAY_AREA.w &&
+            e.y - entity.r >= PLAY_AREA.y &&
+            e.y + entity.r <= PLAY_AREA.y + PLAY_AREA.h,
+        );
+        const pick = (inside.length > 0 ? inside : exits).sort((a, b) => a.d - b.d)[0];
+        entity.x = pick.x;
+        entity.y = pick.y;
       } else {
         entity.x = nearestX + (dx / dist) * entity.r;
         entity.y = nearestY + (dy / dist) * entity.r;
