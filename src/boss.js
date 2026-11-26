@@ -1,3 +1,7 @@
+// assets/boss/boss_front_idle_1.png: front idle sprite.
+const sprite = typeof Image === 'function' ? new Image() : null;
+if (sprite) sprite.src = new URL('../assets/boss/boss_front_idle_1.png', import.meta.url).href;
+
 const MAX_HP = 240;
 const VOLLEY_SIZE = 8;
 const VOLLEY_INTERVAL = 1.7;
@@ -36,6 +40,15 @@ export function drawBoss(ctx, boss, seconds) {
 
   ctx.save();
   ctx.translate(boss.x, boss.y);
+  if (sprite?.complete && sprite.naturalWidth > 0) {
+    const width = boss.r * 2.5;
+    const height = width * sprite.naturalHeight / sprite.naturalWidth;
+    ctx.imageSmoothingEnabled = false;
+    if (boss.flash > 0) ctx.filter = 'brightness(1.7)';
+    ctx.drawImage(sprite, -width / 2, -height / 2, width, height);
+    ctx.restore();
+    return;
+  }
   ctx.fillStyle = '#69442d';
   ctx.fillRect(-10, 2, 20, boss.r - 5);
 
