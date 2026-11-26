@@ -16,6 +16,7 @@ test('a new game waits on the title screen', () => {
 test('start() switches to playing with a fresh run', () => {
   const game = new Game();
   game.score = 50;
+  game.player.hp = 10; // damaged, so the test can see whether start() restores it
   game.bullets.push(makeProjectile(480, 270, 0, 0, false, 20));
 
   game.start();
