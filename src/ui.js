@@ -15,9 +15,10 @@ export function createUI(game) {
 
   function update() {
     if (game.state !== shown.state) {
-      const playing = game.state === 'playing';
-      titleScreen.hidden = playing;
-      hud.hidden = !playing;
+      // The title screen shows only before the first start. Once the run
+      // begins, the HUD stays visible through game over and victory.
+      titleScreen.hidden = game.state !== 'title';
+      hud.hidden = game.state === 'title';
       shown.state = game.state;
     }
 
