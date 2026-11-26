@@ -1,3 +1,7 @@
+// assets/enemy/chaser_front_idle_1.png: front idle sprite.
+const sprite = typeof Image === 'function' ? new Image() : null;
+if (sprite) sprite.src = new URL('../assets/enemy/chaser_front_idle_1.png', import.meta.url).href;
+
 const CHASER = { radius: 14, hp: 40, speed: 90 };
 const PLAY_AREA = { left: 40, right: 920, top: 48, bottom: 492 };
 
@@ -54,6 +58,15 @@ export function drawEnemy(ctx, enemy, seconds) {
 
   ctx.save();
   ctx.translate(enemy.x, enemy.y);
+  if (sprite?.complete && sprite.naturalWidth > 0) {
+    const width = enemy.r * 3;
+    const height = width * sprite.naturalHeight / sprite.naturalWidth;
+    ctx.imageSmoothingEnabled = false;
+    if (enemy.flash > 0) ctx.filter = 'brightness(1.7)';
+    ctx.drawImage(sprite, -width / 2, -height / 2, width, height);
+    ctx.restore();
+    return;
+  }
   ctx.fillStyle = enemy.flash > 0 ? '#fff5d8' : '#62683b';
   ctx.beginPath();
   ctx.arc(0, 3, enemy.r - 3, 0, Math.PI * 2);
