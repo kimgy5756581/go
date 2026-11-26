@@ -8,6 +8,15 @@ function makeInput(overrides = {}) {
   return { keys: new Set(), aim: { x: 500, y: 270 }, firing: false, ...overrides };
 }
 
+// Deterministic random for tests, so enemy spawns don't depend on luck.
+function seededRandom(seed = 42) {
+  let s = seed >>> 0;
+  return () => {
+    s = (Math.imul(s, 1664525) + 1013904223) >>> 0;
+    return s / 4294967296;
+  };
+}
+
 test('a new game waits on the title screen', () => {
   const game = new Game();
   assert.equal(game.state, 'title');
@@ -67,4 +76,105 @@ test('a bullet that leaves the screen is removed', () => {
   game.update(0.05, makeInput()); // moves 26 px, past the right edge
 
   assert.equal(game.bullets.length, 0);
+});
+
+test('start() loads the first room with 9 chasers', () => {
+  const game = new Game(seededRandom());
+  game.start();
+
+  assert.equal(game.roomIndex, 0);
+  assert.equal(game.enemies.length, 9);
+  assert.equal(game.boss, null);
+});
+
+test('clearing a room and touching the exit moves to the next room', () => {
+  const game = new Game(seededRandom());
+  game.start();
+  game.enemies = []; // room cleared
+  game.player.x = 900; // inside the exit (884-920, 230-310)
+  game.player.y = 270;
+
+  game.update(0.016, makeInput());
+
+  assert.equal(game.roomIndex, 1);
+  assert.equal(game.enemies.length, 11);
+  assert.equal(game.player.x, 110); // back at the next room's entrance
+});
+
+test('the last room spawns the boss', () => {
+  const game = new Game(seededRandom());
+  game.loadRoom(4);
+
+  assert.equal(game.boss.hp, 240);
+  assert.equal(game.boss.maxHp, 240);
+  assert.equal(game.enemies.length, 0);
+});
+
+test('defeating a chaser scores 100', () => {
+  const game = new Game(seededRandom());
+  game.start();
+  const enemy = game.enemies[0];
+  enemy.hp = 20; // one shot kills
+  game.bullets.push(makeProjectile(enemy.x, enemy.y, 0, 0, false, 20));
+
+  game.update(0.016, makeInput());
+
+  assert.equal(game.score, 100);
+  assert.equal(game.enemies.length, 8);
+});
+
+test('the boss fires a volley after 1.7 seconds', () => {
+  const game = new Game(seededRandom());
+  game.start();
+  game.loadRoom(4);
+
+  game.update(1.7, makeInput());
+
+  const enemyShots = game.bullets.filter((b) => b.enemy);
+  assert.equal(enemyShots.length, 8);
+});
+
+test('an enemy bullet hurts the player', () => {
+  const game = new Game(seededRandom());
+  game.start();
+  game.enemies = []; // no chasers to interfere
+  game.bullets.push(makeProjectile(game.player.x, game.player.y, 0, 0, true, 14));
+
+  game.update(0.016, makeInput());
+
+  assert.equal(game.player.hp, 86);
+  assert.equal(game.bullets.length, 0);
+});
+
+test('defeating the boss wins the run', () => {
+  const game = new Game(seededRandom());
+  game.start();
+  game.loadRoom(4);
+  game.boss.hp = 20; // one shot kills
+  game.bullets.push(makeProjectile(game.boss.x, game.boss.y, 0, 0, false, 20));
+
+  game.update(0.016, makeInput());
+
+  assert.equal(game.state, 'victory');
+  assert.equal(game.score, 1000);
+  assert.equal(game.message, 'The seasons return! Press R to play again');
+});
+
+test('game over on 0 HP, and R restarts', () => {
+  const game = new Game(seededRandom());
+  game.start();
+  game.player.hp = 5;
+  game.enemies = [];
+  game.bullets.push(makeProjectile(game.player.x, game.player.y, 0, 0, true, 14));
+
+  game.update(0.016, makeInput());
+
+  assert.equal(game.state, 'over');
+  assert.equal(game.message, 'Game Over — press R to restart');
+
+  game.update(0.016, makeInput({ keys: new Set(['KeyR']) }));
+
+  assert.equal(game.state, 'playing');
+  assert.equal(game.player.hp, 100);
+  assert.equal(game.roomIndex, 0);
 });

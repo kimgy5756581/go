@@ -103,3 +103,19 @@ test('drawRoom: 가짜 캔버스로 그려도 에러가 안 나고 바닥을 칠
   // 방을 비운 상태에서도, 기록을 이미 읽은 상태에서도 그려진다.
   drawRoom(ctx, { roomIndex: 0, cleared: true, logsFound: [1] }, 1.5);
 });
+
+test('drawRoom: 먹은 아이템은 안 그리고, 안 먹은 아이템만 그린다', () => {
+  const rects = [];
+  const ctx = { fillStyle: '', fillRect(x, y, w, h) { rects.push([x, y, w, h]); } };
+  const items = [
+    { id: 'repair-kit', x: 480, y: 110, taken: false },
+    { id: 'power-cell', x: 480, y: 430, taken: true },
+  ];
+  drawRoom(ctx, { roomIndex: 0, cleared: false, logsFound: [], items }, 0);
+  // 안 먹은 수리 키트(480, 110)는 12x12로 그려진다.
+  assert.ok(rects.some(([x, y, w, h]) => x === 474 && y === 104 && w === 12 && h === 12),
+    'untaken item not drawn');
+  // 먹은 파워 셀(480, 430) 자리에는 아무것도 그려지지 않는다.
+  assert.ok(!rects.some(([x, y]) => x === 474 && y === 424),
+    'taken item still drawn');
+});
