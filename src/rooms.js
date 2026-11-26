@@ -83,8 +83,8 @@ export function spawnPosition(random, player, blocks) {
   return best;
 }
 
-// 방 그리기: 바닥·장애물·출구·기록 조각. render.js의 drawGame이 방부터 부른다.
-// game: { roomIndex, cleared, logsFound } — 없어도 기본값으로 그린다.
+// 방 그리기: 바닥·장애물·출구·기록 조각·아이템. render.js의 drawGame이 방부터 부른다.
+// game: { roomIndex, cleared, logsFound, items } — items가 없으면 안 그린다.
 // 색상은 컨셉 시트 16색 팔레트 HEX가 확정되면 그때 교체한다(임시 색상).
 export function drawRoom(ctx, game = {}, seconds = 0) {
   const layout = roomLayout(game.roomIndex ?? 0);
@@ -127,9 +127,11 @@ export function drawRoom(ctx, game = {}, seconds = 0) {
     ctx.fillRect(layout.log.x - 8, layout.log.y - 11, 16, 22);
   }
 
-  // 고정 아이템 자리: 아이템이 있으면 작은 표시를 남긴다.
-  for (const spot of layout.itemSpots) {
-    ctx.fillStyle = '#d8c26a';
-    ctx.fillRect(spot.x - 5, spot.y - 5, 10, 10);
+  // 아이템: 아직 바닥에 있는 것만 그린다. 먹은 자리는 표시도 남기지 않는다.
+  // render.js가 game.items를 넘긴다. items가 없으면(예: 오래된 호출) 안 그린다.
+  for (const item of game.items || []) {
+    if (item.taken) continue;
+    ctx.fillStyle = item.id === 'repair-kit' ? '#7ddc8a' : '#ffd94d';
+    ctx.fillRect(item.x - 6, item.y - 6, 12, 12);
   }
 }
