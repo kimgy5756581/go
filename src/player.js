@@ -1,5 +1,5 @@
 import { makeProjectile } from './projectile.js';
-// 플레이 영역(벽 안쪽). 임시 값임 logic.js의 blocked()가 생기면 거기서 가져옴
+// Play area (inside the walls). Temporary values; move to logic.js blocked() once it exists.
 const PLAY_AREA = { left: 40, right: 920, top: 48, bottom: 492 };
 
 export function createPlayer() {
@@ -12,7 +12,7 @@ export function updatePlayer(player, input, blocks, dt) {
   if (input.keys.has('KeyA') || input.keys.has('ArrowLeft'))  dx -= 1;
   if (input.keys.has('KeyS') || input.keys.has('ArrowDown'))  dy += 1;
   if (input.keys.has('KeyW') || input.keys.has('ArrowUp'))    dy -= 1;
-  // 대각선의 속도도 같게
+  // Normalize so diagonal speed equals straight speed
 
   const len = Math.hypot(dx, dy);       
   if (len > 0) { dx /= len; dy /= len; } 
@@ -20,13 +20,13 @@ export function updatePlayer(player, input, blocks, dt) {
   player.x += dx * player.speed * dt;
   player.y += dy * player.speed * dt;
   
-  // 플레이 영역 밖으로 못 나가게함 
+ // Keep the player inside the play area (the circle's edge stops at the wall)
   player.x = Math.min(PLAY_AREA.right - player.r, Math.max(PLAY_AREA.left + player.r, player.x));
   player.y = Math.min(PLAY_AREA.bottom - player.r, Math.max(PLAY_AREA.top + player.r, player.y));
 
-  // 무적 시간 감소
+  // Count down invincibility
   player.invincible = Math.max(0, player.invincible - dt);
-  // 발사
+  // Fire
   player.cooldown -= dt;
   if (input.firing && player.cooldown <= 0) {
     player.cooldown = player.fireInterval;
@@ -34,5 +34,5 @@ export function updatePlayer(player, input, blocks, dt) {
     return makeProjectile(player.x, player.y, angle, 520, false, player.damage);
   }
  
-  return null; // 이번 프레임엔 발사 없다
+  return null; // Vo shot this frame
 }

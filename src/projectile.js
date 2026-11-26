@@ -1,19 +1,19 @@
 
-// 탄환 
+// projectile
 export function makeProjectile(x, y, angle, speed, enemy, damage) {
   return {
     x, y,
-    vx: Math.cos(angle) * speed,  // 가로 속도
-    vy: Math.sin(angle) * speed,  // 세로 속도
+    vx: Math.cos(angle) * speed,  // Horizontal sepped
+    vy: Math.sin(angle) * speed,  // Vertical speed
     damage,
     enemy,
 
     r: enemy ? 5 : 3,        
-    life: 3.5,   // 지속시간 
+    life: 3.5,   // Remaining time
   };
 }
 
-// 탄환 위치갱신
+// Update projectile position
 export function updateProjectile(bullet, dt, blocks) {
   bullet.x += bullet.vx * dt;
   bullet.y += bullet.vy * dt;
