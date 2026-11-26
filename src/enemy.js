@@ -1,35 +1,36 @@
+import { blocked } from './logic.js';
+import { makeProjectile } from './projectile.js';
+
 // assets/enemy/chaser_front_idle_1.png: front idle sprite.
 const sprite = typeof Image === 'function' ? new Image() : null;
 if (sprite) sprite.src = new URL('../assets/enemy/chaser_front_idle_1.png', import.meta.url).href;
 
 const CHASER = { radius: 14, hp: 40, speed: 90 };
-const PLAY_AREA = { left: 40, right: 920, top: 48, bottom: 492 };
+const SHOOTER = { radius: 13, hp: 40, interval: 1.4, speed: 215, damage: 10 };
 
 export function createEnemy(kind, x, y, room) {
-  if (kind !== 'chaser') {
+  if (kind !== 'chaser' && kind !== 'shooter') {
     throw new RangeError(`Unsupported enemy kind: ${kind}`);
   }
-  return { kind, x, y, r: CHASER.radius, hp: CHASER.hp, cooldown: 0, flash: 0 };
-}
-
-// Keep collision local until the shared blocked() contract is available.
-function blocked(x, y, radius, blocks) {
-  if (x - radius < PLAY_AREA.left || x + radius > PLAY_AREA.right ||
-      y - radius < PLAY_AREA.top || y + radius > PLAY_AREA.bottom) {
-    return true;
-  }
-
-  return blocks.some((block) => {
-    const nearestX = Math.max(block.x, Math.min(x, block.x + block.w));
-    const nearestY = Math.max(block.y, Math.min(y, block.y + block.h));
-    return Math.hypot(x - nearestX, y - nearestY) < radius;
-  });
+  const isShooter = kind === 'shooter';
+  const stats = isShooter ? SHOOTER : CHASER;
+  return { kind, x, y, r: stats.radius, hp: stats.hp, cooldown: isShooter ? SHOOTER.interval : 0, flash: 0 };
 }
 
 export function updateEnemy(enemy, player, blocks, dt) {
   if (enemy.hp <= 0) return null;
 
   enemy.flash = Math.max(0, enemy.flash - dt);
+  if (enemy.kind === 'shooter') {
+    enemy.cooldown = Math.max(0, enemy.cooldown - dt);
+    const dx = player.x - enemy.x;
+    const dy = player.y - enemy.y;
+    if (enemy.cooldown > 0 || (dx === 0 && dy === 0)) return null;
+
+    enemy.cooldown = SHOOTER.interval;
+    return makeProjectile(enemy.x, enemy.y, Math.atan2(dy, dx), SHOOTER.speed, true, SHOOTER.damage);
+  }
+
   // Substeps limit how far the enemy can move between collision checks.
   const steps = Math.max(1, Math.ceil(CHASER.speed * dt / (enemy.r / 2)));
   const stepDistance = CHASER.speed * dt / steps;
@@ -53,11 +54,26 @@ export function enemyContact(enemy, player) {
     Math.hypot(enemy.x - player.x, enemy.y - player.y) <= enemy.r + player.r;
 }
 
+export function enemyProjectileHit(bullet, player) {
+  return bullet.enemy === true && bullet.life > 0 &&
+    Math.hypot(bullet.x - player.x, bullet.y - player.y) <= bullet.r + player.r;
+}
+
 export function drawEnemy(ctx, enemy, seconds) {
   if (enemy.hp <= 0) return;
 
   ctx.save();
   ctx.translate(enemy.x, enemy.y);
+  if (enemy.kind === 'shooter') {
+    ctx.fillStyle = enemy.flash > 0 ? '#fff5d8' : '#8ad3f2';
+    ctx.beginPath();
+    ctx.moveTo(0, -enemy.r);
+    ctx.quadraticCurveTo(enemy.r * 2, enemy.r, 0, enemy.r);
+    ctx.quadraticCurveTo(-enemy.r * 2, enemy.r, 0, -enemy.r);
+    ctx.fill();
+    ctx.restore();
+    return;
+  }
   if (sprite?.complete && sprite.naturalWidth > 0) {
     const width = enemy.r * 3;
     const height = width * sprite.naturalHeight / sprite.naturalWidth;
