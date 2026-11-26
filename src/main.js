@@ -1,6 +1,7 @@
 // Browser entry: canvas, input, and the game loop.
 import { Game } from './game.js';
 import { drawGame } from './render.js';
+import { createUI } from './ui.js';
 
 const MAX_DT = 0.05; // seconds
 
@@ -40,7 +41,7 @@ window.addEventListener('blur', () => {
 });
 
 const game = new Game();
-game.start(); // TEMPORARY: part 3 of #4 replaces this with the start button
+const ui = createUI(game);
 
 let previous = performance.now();
 
@@ -51,6 +52,7 @@ function frame(now) {
 
   game.update(dt, input);
   drawGame(ctx, game);
+  ui.update();
 
   requestAnimationFrame(frame);
 }
