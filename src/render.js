@@ -13,34 +13,28 @@ const COLORS = {
 };
 
 export function drawGame(ctx, game) {
-  // 1. Room (floor, walls, exit, log, item spots).
-  drawRoom(ctx, { roomIndex: game.roomIndex, cleared: game.cleared, logsFound: [] }, game.seconds);
+  // 1. Room (floor, walls, exit, log, items). The room draws its own
+  // things; render.js only sets the order (common rules section 3).
+  drawRoom(ctx, { roomIndex: game.roomIndex, cleared: game.cleared, logsFound: [], items: game.items }, game.seconds);
 
-  // 2. Items still on the floor.
-  for (const item of game.items) {
-    if (item.taken) continue;
-    ctx.fillStyle = item.id === 'repair-kit' ? '#7ddc8a' : '#ffd94d';
-    ctx.fillRect(item.x - 6, item.y - 6, 12, 12);
-  }
-
-  // 3. Enemies and the boss.
+  // 2. Enemies and the boss.
   for (const enemy of game.enemies) drawEnemy(ctx, enemy, game.seconds);
   if (game.boss) drawBoss(ctx, game.boss, game.seconds);
 
-  // 4. Bullets: player shots in gold, enemy shots in red.
+  // 3. Bullets: player shots in gold, enemy shots in red.
   for (const bullet of game.bullets) {
     ctx.fillStyle = bullet.enemy ? COLORS.enemyBullet : COLORS.bullet;
     fillCircle(ctx, bullet.x, bullet.y, bullet.r);
   }
 
-  // 5. Player (temporary circle until drawPlayer arrives; blinks while invincible).
+  // 4. Player (temporary circle until drawPlayer arrives; blinks while invincible).
   const { player } = game;
   if (!(player.invincible > 0 && Math.floor(game.seconds * 10) % 2 === 0)) {
     ctx.fillStyle = COLORS.player;
     fillCircle(ctx, player.x, player.y, player.r);
   }
 
-  // 6. Boss health bar, above the play area.
+  // 5. Boss health bar, above the play area.
   if (game.boss && game.boss.hp > 0) {
     const barWidth = 300;
     const x = (WIDTH - barWidth) / 2;
@@ -50,7 +44,7 @@ export function drawGame(ctx, game) {
     ctx.fillRect(x, 12, barWidth * Math.max(0, game.boss.hp / game.boss.maxHp), 10);
   }
 
-  // 7. Message (game over / victory / room cleared).
+  // 6. Message (game over / victory / room cleared).
   if (game.message) {
     ctx.fillStyle = '#ffffff';
     ctx.font = '20px sans-serif';
