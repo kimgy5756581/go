@@ -17,7 +17,7 @@ export const ROOM_LAYOUTS = [
   {
     name: 'Garden in Bloom',
     season: 'spring',
-    musicId: 'spring',
+    musicId: 'spring-mob',
     enemyCount: 9,
     boss: null,
     // 왼쪽 입구. createPlayer() 시작 위치(110, 270)와 같다.
@@ -46,7 +46,7 @@ export const ROOM_LAYOUTS = [
   {
     name: 'Blossom Shrine',
     season: 'spring',
-    musicId: 'boss',
+    musicId: 'spring-boss',
     enemyCount: 0,
     boss: 'spring', // Blossom Guardian(240 HP). game.js가 createBoss()를 둔다.
     spawn: { x: 110, y: 270 },
@@ -66,7 +66,7 @@ export const ROOM_LAYOUTS = [
   {
     name: 'Waterlight Greenhouse',
     season: 'summer',
-    musicId: 'summer',
+    musicId: 'summer-mob',
     enemyCount: 11,
     boss: null,
     spawn: { x: 110, y: 270 },
@@ -90,7 +90,7 @@ export const ROOM_LAYOUTS = [
   {
     name: 'Sunlit Greenhouse',
     season: 'summer',
-    musicId: 'boss',
+    musicId: 'summer-boss',
     enemyCount: 0,
     boss: null, // 여름 보스는 아직 없음. 보스 자리(가운데)는 비워 둔다.
     spawn: { x: 110, y: 270 },
@@ -108,7 +108,7 @@ export const ROOM_LAYOUTS = [
   {
     name: 'Fallen Leaf Forest',
     season: 'autumn',
-    musicId: 'autumn',
+    musicId: 'autumn-mob',
     enemyCount: 13,
     boss: null,
     spawn: { x: 110, y: 270 },
@@ -133,7 +133,7 @@ export const ROOM_LAYOUTS = [
   {
     name: 'Amber Hollow',
     season: 'autumn',
-    musicId: 'boss',
+    musicId: 'autumn-boss',
     enemyCount: 0,
     boss: null, // 가을 보스는 아직 없음. 가운데는 비워 둔다.
     spawn: { x: 110, y: 270 },
@@ -153,7 +153,7 @@ export const ROOM_LAYOUTS = [
   {
     name: 'Frozen Courtyard',
     season: 'winter',
-    musicId: 'winter',
+    musicId: 'winter-mob',
     enemyCount: 15,
     boss: null,
     spawn: { x: 110, y: 270 },
@@ -177,7 +177,7 @@ export const ROOM_LAYOUTS = [
   {
     name: 'Silent Ice Hall',
     season: 'winter',
-    musicId: 'boss',
+    musicId: 'winter-boss',
     enemyCount: 0,
     boss: null, // 겨울 보스는 아직 없음. 가운데는 비워 둔다.
     spawn: { x: 110, y: 270 },

@@ -4,7 +4,8 @@
 // Wires together the four members' code: rooms (#3), chaser + boss (#2),
 // items (#3), and the game loop (#4). The shooter enemy is not in main yet
 // (its PR was closed unmerged), so only the chaser spawns for now.
-// Music is not wired in: no mp3 files exist yet.
+// Music: each room has its own track (music.js, 8 tracks). loadRoom plays
+// the room's track; M toggles sound on/off (main.js).
 // Rooms: 8 total — one mob zone + one boss room per season (4 seasons).
 // The winter boss room is the last room. Only the spring boss exists so far;
 // the other boss rooms are empty arenas until their bosses are made.
@@ -16,6 +17,7 @@ import { createEnemy, updateEnemy, enemyContact } from './enemy.js';
 import { createBoss, updateBoss } from './boss.js';
 import { ROOM_LAYOUTS, roomBlocks, spawnPosition } from './rooms.js';
 import { applyItem } from './items.js';
+import { playMusic } from './music.js';
 
 export const WIDTH = 960;
 export const HEIGHT = 540;
@@ -54,6 +56,7 @@ export class Game {
   loadRoom(index) {
     const layout = ROOM_LAYOUTS[index];
     this.roomIndex = index;
+    playMusic(layout.musicId);
     this.blocks = roomBlocks(index);
     this.player.x = layout.spawn.x;
     this.player.y = layout.spawn.y;

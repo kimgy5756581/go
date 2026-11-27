@@ -2,6 +2,8 @@
 import { Game } from './game.js';
 import { drawGame } from './render.js';
 import { createUI } from './ui.js';
+import { setMusicEnabled, isMusicEnabled, playMusic } from './music.js';
+import { ROOM_LAYOUTS } from './rooms.js';
 
 const MAX_DT = 0.05; // seconds
 
@@ -34,6 +36,14 @@ canvas.addEventListener('contextmenu', (event) => event.preventDefault());
 
 window.addEventListener('keydown', (event) => input.keys.add(event.code));
 window.addEventListener('keyup', (event) => input.keys.delete(event.code));
+// M: music on/off. Sound defaults OFF (common rules §7). Turning it on
+// starts the current room's track; game.js switches tracks on room change.
+window.addEventListener('keydown', (event) => {
+  if (event.code !== 'KeyM') return;
+  const on = !isMusicEnabled();
+  setMusicEnabled(on);
+  if (on) playMusic(ROOM_LAYOUTS[game.roomIndex].musicId);
+});
 // Alt+Tab while holding a key means keyup never arrives; clear everything
 window.addEventListener('blur', () => {
   input.keys.clear();
