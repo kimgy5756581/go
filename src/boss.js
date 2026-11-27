@@ -1,16 +1,29 @@
+import { makeProjectile } from './projectile.js';
+
 // assets/boss/boss_front_idle_1.png: front idle sprite.
 const sprite = typeof Image === 'function' ? new Image() : null;
 if (sprite) sprite.src = new URL('../assets/boss/boss_front_idle_1.png', import.meta.url).href;
 
-const MAX_HP = 240;
-const VOLLEY_SIZE = 8;
-const VOLLEY_INTERVAL = 1.7;
+const SPRING = { hp: 240, count: 8, interval: 1.7, x: 740 };
+const FINAL = { hp: 900, count: 12, interval: 2.1, x: 650 };
+// Keep the public boss entity fields identical for both encounters.
+const finalBosses = new WeakSet();
 const SHOT_SPEED = 185;
 const SHOT_DAMAGE = 14;
 
+function makeBoss(profile) {
+  return { kind: 'boss', x: profile.x, y: 270, r: 48, hp: profile.hp, maxHp: profile.hp,
+    cooldown: profile.interval, flash: 0, volley: 0 };
+}
+
 export function createBoss() {
-  return { kind: 'boss', x: 740, y: 270, r: 48, hp: MAX_HP, maxHp: MAX_HP,
-    cooldown: VOLLEY_INTERVAL, flash: 0, volley: 0 };
+  return makeBoss(SPRING);
+}
+
+export function createFinalBoss() {
+  const boss = makeBoss(FINAL);
+  finalBosses.add(boss);
+  return boss;
 }
 
 export function updateBoss(boss, dt) {
@@ -20,18 +33,19 @@ export function updateBoss(boss, dt) {
   boss.cooldown = Math.max(0, boss.cooldown - dt);
   if (boss.cooldown > 0) return [];
 
-  boss.cooldown = VOLLEY_INTERVAL;
-  const spacing = (2 * Math.PI) / VOLLEY_SIZE;
+  const profile = finalBosses.has(boss) ? FINAL : SPRING;
+  boss.cooldown = profile.interval;
+  const spacing = (2 * Math.PI) / profile.count;
   const offset = (boss.volley % 2) * spacing / 2;
   boss.volley += 1;
 
-  return Array.from({ length: VOLLEY_SIZE }, (_, index) => {
+  return Array.from({ length: profile.count }, (_, index) => {
     const angle = offset + index * spacing;
-    const dx = Math.cos(angle);
-    const dy = Math.sin(angle);
-    const r = 5;
-    return { x: boss.x + dx * (boss.r + r), y: boss.y + dy * (boss.r + r),
-      vx: dx * SHOT_SPEED, vy: dy * SHOT_SPEED, enemy: true, damage: SHOT_DAMAGE, r, life: 3.5 };
+    const shot = makeProjectile(boss.x, boss.y, angle, SHOT_SPEED, true, SHOT_DAMAGE);
+    const distance = boss.r + shot.r;
+    shot.x += Math.cos(angle) * distance;
+    shot.y += Math.sin(angle) * distance;
+    return shot;
   });
 }
 
@@ -40,7 +54,7 @@ export function drawBoss(ctx, boss, seconds) {
 
   ctx.save();
   ctx.translate(boss.x, boss.y);
-  if (sprite?.complete && sprite.naturalWidth > 0) {
+  if (!finalBosses.has(boss) && sprite?.complete && sprite.naturalWidth > 0) {
     const width = boss.r * 2.5;
     const height = width * sprite.naturalHeight / sprite.naturalWidth;
     ctx.imageSmoothingEnabled = false;
@@ -52,7 +66,9 @@ export function drawBoss(ctx, boss, seconds) {
   ctx.fillStyle = '#69442d';
   ctx.fillRect(-10, 2, 20, boss.r - 5);
 
-  const colors = ['#f4b8cc', '#dd769e', '#f6ced9', '#e78baa'];
+  const colors = finalBosses.has(boss)
+    ? ['#de91a9', '#72b273', '#d89151', '#98cfe5']
+    : ['#f4b8cc', '#dd769e', '#f6ced9', '#e78baa'];
   for (let index = 0; index < colors.length; index++) {
     const angle = index * Math.PI / 2 - Math.PI / 4;
     ctx.fillStyle = boss.flash > 0 ? '#fff5d8' : colors[index];
