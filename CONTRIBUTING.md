@@ -4,6 +4,21 @@ This guide is based on the team's common rules (sections 4, 5, 9).
 The common rules document is the source of truth; if this file and that
 document disagree, follow the common rules document and fix this file.
 
+## Setup and run
+
+- Install Node.js 20 or later.
+- `git clone https://github.com/kimgy5756581/go.git`
+- `cd go`
+- `node server.js`
+- Open http://127.0.0.1:3000 in a browser.
+- Run the tests with `node --test`.
+
+## Reporting an issue
+
+- Open the Issues tab and click New issue.
+- Write a short title and describe what happened, what you expected, and how to reproduce it (steps, room, inputs).
+- Add a label or assignee if you know who should handle it.
+
 ## Workflow
 
 Issue -> assignee -> branch -> PR -> review -> fix -> merge.
