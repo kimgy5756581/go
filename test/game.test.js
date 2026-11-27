@@ -78,7 +78,7 @@ test('a bullet that leaves the screen is removed', () => {
   assert.equal(game.bullets.length, 0);
 });
 
-test('start() loads the first room with 9 chasers', () => {
+test('start() loads the first room with 9 enemies', () => {
   const game = new Game(seededRandom());
   game.start();
 

@@ -3,8 +3,7 @@
 // the player is a simple circle drawn here.
 import { WIDTH, HEIGHT } from './game.js';
 import { drawRoom } from './rooms.js';
-import { drawEnemy } from './enemy.js';
-import { drawBoss } from './boss.js';
+import { drawRoomEnemy, drawRoomBoss } from './season-combat.js';
 
 const COLORS = {
   bullet: '#f2c14e',
@@ -18,8 +17,8 @@ export function drawGame(ctx, game) {
   drawRoom(ctx, { roomIndex: game.roomIndex, cleared: game.cleared, logsFound: [], items: game.items }, game.seconds);
 
   // 2. Enemies and the boss.
-  for (const enemy of game.enemies) drawEnemy(ctx, enemy, game.seconds);
-  if (game.boss) drawBoss(ctx, game.boss, game.seconds);
+  for (const enemy of game.enemies) drawRoomEnemy(ctx, enemy, game.seconds);
+  if (game.boss) drawRoomBoss(ctx, game.boss, game.seconds);
 
   // 3. Bullets: player shots in gold, enemy shots in red.
   for (const bullet of game.bullets) {
