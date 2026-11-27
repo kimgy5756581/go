@@ -1,3 +1,18 @@
+const sprites = new Map();
+
+function monsterSprite(entity) {
+  if (typeof Image !== 'function') return null;
+  const role = entity.kind;
+  const key = `${entity.season}_${role}`;
+  if (!sprites.has(key)) {
+    const image = new Image();
+    const folder = role === 'boss' ? 'boss' : 'enemy';
+    image.src = new URL(`../assets/${folder}/${key}_front_idle_1.png`, import.meta.url).href;
+    sprites.set(key, image);
+  }
+  return sprites.get(key);
+}
+
 import { blocked } from './logic.js';
 import { makeProjectile } from './projectile.js';
 import { createEnemy, drawEnemy, updateEnemy } from './enemy.js';
@@ -8,7 +23,7 @@ export function createRoomEnemy(season, index, x, y, room) {
   const group = LOADOUTS[season]?.groups.find(group => index < group.until);
   if (!group) return createEnemy('chaser', x, y, room);
   const { role, hp, radius } = group;
-  return { kind: role, x, y, r: radius, hp, flash: 0, cooldown: 0.5 + (index % 5) * 0.23,
+  return { kind: role, season, x, y, r: radius, hp, flash: 0, cooldown: (role === 'assassin' ? group.dashCooldown : 0.5) + (index % 5) * 0.23,
     phase: 'ready', angle: 0, profile: group };
 }
 
@@ -16,7 +31,7 @@ export function createRoomBoss(season) {
   if (season === 'spring') return createBoss();
   const profile = LOADOUTS[season]?.boss;
   if (!profile) return null;
-  return { kind: 'boss', x: 500, y: 270, r: 42, hp: profile.hp, maxHp: profile.hp,
+  return { kind: 'boss', season, x: 500, y: 270, r: 42, hp: profile.hp, maxHp: profile.hp,
     flash: 0, cooldown: profile.interval, phase: 'ready', angle: 0, volley: 0, profile };
 }
 
@@ -89,7 +104,18 @@ export function updateRoomEnemy(enemy, player, blocks, dt) {
     return [];
   }
   if (p.role === 'assassin') {
+    if (enemy.phase === 'ready' || enemy.phase === 'recovery') {
+      const distance = Math.hypot(player.x - enemy.x, player.y - enemy.y);
+      const speed = LOADOUTS[enemy.season].groups[0].speed * 2;
+      move(enemy, aim(enemy, player), Math.min(speed * dt, Math.max(0, distance - enemy.r)), blocks);
+      if (distance > 190) {
+        enemy.cooldown = Math.max(0, enemy.cooldown - dt);
+        return [];
+      }
+    }
+    const wasCharging = enemy.phase === 'charging';
     charge(enemy, player, blocks, dt);
+    if (wasCharging && enemy.phase === 'recovery') enemy.cooldown = Math.max(enemy.cooldown, p.dashCooldown);
     return [];
   }
   enemy.cooldown -= dt;
@@ -130,7 +156,7 @@ export function updateRoomBoss(boss, player, blocks, dt) {
 }
 
 export function drawRoomEnemy(ctx, entity, seconds) {
-  if (!entity.profile || entity.profile === LOADOUTS.spring.groups[0]) return drawEnemy(ctx, entity, seconds);
+  if (!entity.profile) return drawEnemy(ctx, entity, seconds);
   drawSeasonMonster(ctx, entity);
 }
 
@@ -153,6 +179,19 @@ function drawSeasonMonster(ctx, entity) {
     ctx.stroke();
   }
   ctx.translate(x, y);
+  const sprite = monsterSprite(entity);
+  if (sprite?.complete && sprite.naturalWidth > 0 && sprite.naturalHeight > 0) {
+    const size = entity.kind === 'boss' ? 144 : 44;
+    const scale = size / Math.max(sprite.naturalWidth, sprite.naturalHeight);
+    const width = sprite.naturalWidth * scale;
+    const height = sprite.naturalHeight * scale;
+    ctx.imageSmoothingEnabled = false;
+    if (entity.flash > 0) ctx.filter = 'brightness(1.7)';
+    else if (entity.phase === 'warning') ctx.filter = 'brightness(1.25)';
+    ctx.drawImage(sprite, -width / 2, -height / 2, width, height);
+    ctx.restore();
+    return;
+  }
   ctx.fillStyle = entity.flash > 0 ? '#fff5d8' : profile.color;
   ctx.strokeStyle = '#162127';
   ctx.lineWidth = 3;

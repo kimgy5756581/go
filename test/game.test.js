@@ -120,7 +120,7 @@ test('defeating the spring boss opens the exit to the summer mob zone', () => {
   assert.equal(game.enemies.length, 11);
 });
 
-test('the spring boss room spawns the spring boss, the last room has none yet', () => {
+test('the spring and winter boss rooms spawn distinct bosses', () => {
   const game = new Game(seededRandom());
   game.loadRoom(1);
 
@@ -130,7 +130,7 @@ test('the spring boss room spawns the spring boss, the last room has none yet', 
 
   // TODO: the winter boss is not made yet.
   game.loadRoom(7);
-  assert.equal(game.boss, null);
+  assert.equal(game.boss.hp, 900);
   assert.equal(game.enemies.length, 0);
 });
 
@@ -170,17 +170,13 @@ test('an enemy bullet hurts the player', () => {
   assert.equal(game.bullets.length, 0);
 });
 
-test('touching the last room exit wins the run (winter boss not in yet)', () => {
+test('defeating the winter boss wins the run', () => {
   const game = new Game(seededRandom());
   game.start();
-  game.loadRoom(7); // no enemies, no boss yet: cleared right away
-  game.player.x = 900; // inside the temporary exit
-  game.player.y = 270;
-
-  game.update(0.016, makeInput());
-
+  game.loadRoom(7);
+  game.boss.hp = 0;
+  game.update(0, makeInput());
   assert.equal(game.state, 'victory');
-  assert.equal(game.message, 'The seasons return! Press R to play again');
 });
 
 test('game over on 0 HP, and R restarts', () => {
