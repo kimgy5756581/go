@@ -9,4 +9,9 @@ export const LOADOUTS = {
     { until: 9, role: 'mage', hp: 42, radius: 13, warning: 0.48, interval: 2.1, shots: 2, spread: 0.2, bulletSpeed: 185, damage: 10, color: '#54c5c7' },
     { until: 11, role: 'assassin', hp: 36, radius: 12, warning: 0.46, interval: 2, speed: 300, duration: 0.46, damage: 13, color: '#62d6c7' },
   ], boss: { pattern: 'fan', hp: 360, interval: 1.85, warning: 0.5, shots: 3, spread: 0.27, bulletSpeed: 225, damage: 16, color: '#d9b94f' } },
+  autumn: { groups: [
+    { until: 6, role: 'chaser', hp: 72, radius: 15, speed: 97, damage: 13, color: '#ba7b43' },
+    { until: 9, role: 'mage', hp: 54, radius: 13, warning: 0.44, interval: 1.8, shots: 3, spread: 0.23, bulletSpeed: 205, damage: 12, color: '#e2a24d' },
+    { until: 13, role: 'assassin', hp: 46, radius: 12, warning: 0.42, interval: 1.75, speed: 360, duration: 0.5, damage: 16, color: '#ef7b38' },
+  ], boss: { pattern: 'charge', hp: 560, interval: 1.35, warning: 0.62, speed: 520, duration: 0.74, damage: 26, color: '#db9551' } },
 };
