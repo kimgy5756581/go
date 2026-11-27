@@ -4,13 +4,20 @@
 // Wires together the four members' code: rooms (#3), chaser + boss (#2),
 // items (#3), and the game loop (#4). The shooter enemy is not in main yet
 // (its PR was closed unmerged), so only the chaser spawns for now.
-// Music is not wired in: no mp3 files exist yet.
+// Music: each room has its own track (music.js, 8 tracks). loadRoom plays
+// the room's track; M toggles sound on/off (main.js).
+// Rooms: 8 total — one mob zone + one boss room per season (4 seasons).
+// The winter boss room is the last room. Only the spring boss exists so far;
+// the other boss rooms are empty arenas until their bosses are made.
+// The final boss (the Season Tree, PR #29) has no room: the team decided the
+// winter boss is the finale instead.
 import { createPlayer, updatePlayer } from './player.js';
 import { updateProjectile } from './projectile.js';
 import { createEnemy, updateEnemy, enemyContact } from './enemy.js';
 import { createBoss, updateBoss } from './boss.js';
 import { ROOM_LAYOUTS, roomBlocks, spawnPosition } from './rooms.js';
 import { applyItem } from './items.js';
+import { playMusic } from './music.js';
 
 export const WIDTH = 960;
 export const HEIGHT = 540;
@@ -18,7 +25,7 @@ export const CONTACT_DAMAGE = 10;
 export const HIT_INVINCIBLE = 0.85;
 export const SCORE_CHASER = 100;
 export const SCORE_BOSS = 1000;
-const BOSS_ROOM_INDEX = ROOM_LAYOUTS.length - 1;
+const LAST_ROOM_INDEX = ROOM_LAYOUTS.length - 1;
 
 export class Game {
   // random: a function returning [0, 1). Tests pass a fixed one so spawns
@@ -41,11 +48,15 @@ export class Game {
     this.loadRoom(0);
   }
 
-  // Set up one room: walls, enemies, items, and the boss in the last room.
+  // Set up one room: walls, enemies, items, and the boss in its boss room.
   // The player keeps HP and upgrades across rooms; only the position resets.
+  // layout.boss: 'spring' -> Blossom Guardian; null -> no boss in this room.
+  // (The winter boss is not made yet, so the last room spawns no boss
+  // for now; see step 9.)
   loadRoom(index) {
     const layout = ROOM_LAYOUTS[index];
     this.roomIndex = index;
+    playMusic(layout.musicId);
     this.blocks = roomBlocks(index);
     this.player.x = layout.spawn.x;
     this.player.y = layout.spawn.y;
@@ -55,7 +66,7 @@ export class Game {
       this.enemies.push(createEnemy('chaser', pos.x, pos.y, index));
     }
     this.items = layout.itemSpots.map((spot) => ({ ...spot, taken: false }));
-    this.boss = index === BOSS_ROOM_INDEX ? createBoss() : null;
+    this.boss = layout.boss === 'spring' ? createBoss() : null;
     this.bullets = [];
     this.cleared = false;
   }
@@ -159,17 +170,18 @@ export class Game {
       this.cleared = true;
     }
 
-    // 9. Boss defeated in the last room: the run is won.
-    if (this.boss && this.boss.hp <= 0) {
-      this.state = 'victory';
-      this.message = 'The seasons return! Press R to play again';
-      return;
-    }
-
-    // 10. Touching the open exit moves to the next room.
+    // 9. Touching the open exit moves to the next room. In the last room it
+    // wins the run instead: the winter boss is not made yet, so the last
+    // room has a temporary exit (see rooms.js). Once the winter boss
+    // lands, victory moves back to "boss defeated".
     if (this.cleared) {
       const exit = ROOM_LAYOUTS[this.roomIndex].exit;
       if (exit && touchesExit(this.player, exit)) {
+        if (this.roomIndex === LAST_ROOM_INDEX) {
+          this.state = 'victory';
+          this.message = 'The seasons return! Press R to play again';
+          return;
+        }
         this.loadRoom(this.roomIndex + 1);
       }
     }
