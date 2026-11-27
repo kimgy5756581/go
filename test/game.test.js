@@ -96,17 +96,41 @@ test('clearing a room and touching the exit moves to the next room', () => {
 
   game.update(0.016, makeInput());
 
-  assert.equal(game.roomIndex, 1);
-  assert.equal(game.enemies.length, 11);
+  assert.equal(game.roomIndex, 1); // spring boss room: no chasers, boss waits
+  assert.equal(game.enemies.length, 0);
+  assert.equal(game.boss.hp, 240);
   assert.equal(game.player.x, 110); // back at the next room's entrance
 });
 
-test('the last room spawns the boss', () => {
+test('defeating the spring boss opens the exit to the summer mob zone', () => {
   const game = new Game(seededRandom());
-  game.loadRoom(4);
+  game.start();
+  game.loadRoom(1);
+  game.boss.hp = 20; // one shot kills
+  game.bullets.push(makeProjectile(game.boss.x, game.boss.y, 0, 0, false, 20));
+
+  game.update(0.016, makeInput());
+
+  assert.equal(game.state, 'playing'); // mid-game boss: no victory yet
+  assert.equal(game.cleared, true);
+  game.player.x = 900;
+  game.player.y = 270;
+  game.update(0.016, makeInput());
+  assert.equal(game.roomIndex, 2);
+  assert.equal(game.enemies.length, 11);
+});
+
+test('the spring boss room spawns the spring boss, the last room has none yet', () => {
+  const game = new Game(seededRandom());
+  game.loadRoom(1);
 
   assert.equal(game.boss.hp, 240);
   assert.equal(game.boss.maxHp, 240);
+  assert.equal(game.enemies.length, 0);
+
+  // TODO: the winter boss is not made yet.
+  game.loadRoom(7);
+  assert.equal(game.boss, null);
   assert.equal(game.enemies.length, 0);
 });
 
@@ -126,7 +150,7 @@ test('defeating a chaser scores 100', () => {
 test('the boss fires a volley after 1.7 seconds', () => {
   const game = new Game(seededRandom());
   game.start();
-  game.loadRoom(4);
+  game.loadRoom(1);
 
   game.update(1.7, makeInput());
 
@@ -146,17 +170,16 @@ test('an enemy bullet hurts the player', () => {
   assert.equal(game.bullets.length, 0);
 });
 
-test('defeating the boss wins the run', () => {
+test('touching the last room exit wins the run (winter boss not in yet)', () => {
   const game = new Game(seededRandom());
   game.start();
-  game.loadRoom(4);
-  game.boss.hp = 20; // one shot kills
-  game.bullets.push(makeProjectile(game.boss.x, game.boss.y, 0, 0, false, 20));
+  game.loadRoom(7); // no enemies, no boss yet: cleared right away
+  game.player.x = 900; // inside the temporary exit
+  game.player.y = 270;
 
   game.update(0.016, makeInput());
 
   assert.equal(game.state, 'victory');
-  assert.equal(game.score, 1000);
   assert.equal(game.message, 'The seasons return! Press R to play again');
 });
 
