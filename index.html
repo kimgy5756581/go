@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="ko">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>고장 난 계절</title>
+    <style>
+        :root {
+            --night: #1e1626;    /* page background, deep plum */
+            --veil: rgba(30, 22, 38, 0.86);
+            --cream: #f3e9d2;    /* main text, same as the player stand-in */
+            --blossom: #eaa7bf;  /* spring: start button */
+            --leaf: #8cc084;     /* spring: health bar */
+            --ink: #2a1d2c;      /* text on the button */
+        }
+
+        [hidden] {
+            display: none !important;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            background: var(--night);
+            color: var(--cream);
+            font-family: system-ui, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+        }
+
+        /* Canvas and overlays share one box, so the overlays scale with the canvas. */
+        .stage {
+            position: relative;
+            width: min(960px, 100vw);
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+
+        /* The HUD sits in the top wall band (y 0-48 of 540), outside the play area. */
+        #hud {
+            position: absolute;
+            top: 0;
+            left: 4.17%;
+            right: 4.17%;
+            height: 8.9%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: clamp(12px, 1.8vw, 16px);
+            pointer-events: none;
+        }
+
+        .hp {
+            display: flex;
+            align-items: center;
+            gap: 0.6em;
+        }
+
+        .hp-track {
+            width: 9em;
+            height: 0.55em;
+            border-radius: 1em;
+            background: rgba(243, 233, 210, 0.18);
+            overflow: hidden;
+        }
+
+        #hp-fill {
+            height: 100%;
+            width: 100%;
+            background: var(--leaf);
+        }
+
+        #title-screen {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            padding: 1rem;
+            text-align: center;
+            background: var(--veil);
+        }
+
+        #title-screen h1 {
+            margin: 0;
+            font-size: clamp(2.2rem, 7vw, 4.2rem);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+
+        #title-screen p {
+            margin: 0;
+            max-width: 32em;
+            line-height: 1.6;
+        }
+
+        #start-button {
+            margin-top: 0.5rem;
+            padding: 0.7em 2.2em;
+            border: 0;
+            border-radius: 0.4em;
+            background: var(--blossom);
+            color: var(--ink);
+            font: inherit;
+            font-size: 1.15rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        #start-button:focus-visible {
+            outline: 3px solid var(--cream);
+            outline-offset: 3px;
+        }
+
+        .controls {
+            font-size: 0.9rem;
+            opacity: 0.75;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="stage">
+        <canvas id="game" width="960" height="540" aria-label="Game screen. WASD to move, mouse to aim and fire."></canvas>
+
+        <div id="hud" hidden>
+            <div class="hp">
+                <span>체력</span>
+                <div class="hp-track"><div id="hp-fill"></div></div>
+                <span id="hp-text"></span>
+            </div>
+            <div>점수 <span id="score-text"></span></div>
+        </div>
+
+        <div id="title-screen">
+            <h1>고장 난 계절</h1>
+            <p>누군가 봄을 끝내지 않자, 모든 계절이 길을 잃었다.</p>
+            <button id="start-button" type="button" autofocus>시작하기</button>
+            <p class="controls">WASD로 움직이고, 마우스로 조준한 채 누르고 있으면 발사해요.</p>
+        </div>
+    </div>
+    <script type="module" src="src/main.js"></script>
+</body>
+
+</html>

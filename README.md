@@ -2,7 +2,7 @@
 
 > When someone refused to let spring end, every season lost its way.
 
-A 2D top-down shooter where Ria, the season manager, purifies four broken areas (spring, summer, autumn, winter) and revives the Tree of Seasons, which cannot fall asleep. A fresh implementation using the LAST SIGNAL prototype as a reference.
+A 2D top-down shooter where Sua, the season manager, purifies four broken areas (spring, summer, autumn, winter) and revives the Tree of Seasons, which cannot fall asleep. A fresh implementation using the LAST SIGNAL prototype as a reference.
 
 ## Current status
 
@@ -33,3 +33,8 @@ Issue → branch → PR → review → merge. The shared rules (file ownership, 
 ## Scope
 
 Core: 5 rooms (4 seasons + boss), 2 enemy types + 1 boss, 3 item types, 3 teacher's records, best-record saving. Out of scope: dash, charging enemies, combo, inventory, online rankings, procedural dungeon generation.
+## License
+
+This project is licensed under the MIT License — see [LICENSE](LICENSE).
+
+We chose MIT because this is a student project: anyone may freely use, learn from, and modify the game. If sprites or music are added later, their sources and licenses will be listed here as well.

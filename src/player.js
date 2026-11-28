@@ -1,6 +1,6 @@
 import { makeProjectile } from './projectile.js';
-// Play area (inside the walls). Temporary values; move to logic.js blocked() once it exists.
-const PLAY_AREA = { left: 40, right: 920, top: 48, bottom: 492 };
+import { resolveCircle } from './logic.js';
+
 const FRAME_SIZE = 48;
 const STEP_SECONDS = 0.13;
 const SIDE_POSE_SECONDS = 0.09;
@@ -70,10 +70,10 @@ export function updatePlayer(player, input, blocks, dt) {
 
   player.x += dx * player.speed * dt;
   player.y += dy * player.speed * dt;
-  
- // Keep the player inside the play area (the circle's edge stops at the wall)
-  player.x = Math.min(PLAY_AREA.right - player.r, Math.max(PLAY_AREA.left + player.r, player.x));
-  player.y = Math.min(PLAY_AREA.bottom - player.r, Math.max(PLAY_AREA.top + player.r, player.y));
+
+  // Walls and blocks: push the player out after moving.
+  // resolveCircle also clamps to the play area, so the old local clamp is gone.
+  resolveCircle(player, blocks || []);
 
   // Count down invincibility
   player.invincible = Math.max(0, player.invincible - dt);
@@ -98,7 +98,7 @@ export function updatePlayer(player, input, blocks, dt) {
     return makeProjectile(shotX, shotY, angle, 520, false, player.damage);
   }
  
-  return null; // Vo shot this frame
+  return null; // No shot this frame
 }
 
 export function drawPlayer(ctx, player, seconds = 0) {
